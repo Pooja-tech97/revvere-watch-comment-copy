@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Play, MessageCircle, Heart, LogOut, ChevronLeft } from "lucide-react";
+import { Play, MessageCircle, Heart, LogOut, ChevronLeft, Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+const GEMINI_API_KEY = "AIzaSyBG1oJzeCY7GSR6nEGKhP862FtpQaF_UR8";
 
 interface Video {
   id: string;
@@ -81,8 +83,57 @@ const Videos = () => {
     },
   ]);
   const [newComment, setNewComment] = useState("");
+  const [summary, setSummary] = useState<string | null>(null);
+  const [isSummarizing, setIsSummarizing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const summarizeComments = async () => {
+    if (videoComments.length === 0) {
+      toast({ title: "No comments", description: "There are no comments to summarize." });
+      return;
+    }
+
+    setIsSummarizing(true);
+    setSummary(null);
+
+    const commentsText = videoComments.map(c => `${c.userName}: "${c.text}"`).join("\n");
+    
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `Summarize the following comments from a wellness video in 2-3 sentences. Focus on the overall sentiment and key themes mentioned:\n\n${commentsText}`
+              }]
+            }]
+          })
+        }
+      );
+
+      const data = await response.json();
+      const summaryText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (summaryText) {
+        setSummary(summaryText);
+      } else {
+        throw new Error("No summary generated");
+      }
+    } catch (error) {
+      console.error("Summarization error:", error);
+      toast({ 
+        title: "Summarization failed", 
+        description: "Could not generate summary. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -198,10 +249,39 @@ const Videos = () => {
               {/* Comments Section */}
               <div className="lg:col-span-1">
                 <div className="bg-card/50 rounded-xl border border-border/50 p-6">
-                  <h3 className="font-serif text-lg text-foreground flex items-center gap-2 mb-6">
-                    <MessageCircle className="w-5 h-5 text-cream" />
-                    Comments ({videoComments.length})
-                  </h3>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-serif text-lg text-foreground flex items-center gap-2">
+                      <MessageCircle className="w-5 h-5 text-cream" />
+                      Comments ({videoComments.length})
+                    </h3>
+                    {videoComments.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={summarizeComments}
+                        disabled={isSummarizing}
+                        className="text-cream hover:text-cream/80"
+                      >
+                        {isSummarizing ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-4 h-4" />
+                        )}
+                        <span className="ml-1.5 text-xs">AI Summary</span>
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* AI Summary */}
+                  {summary && (
+                    <div className="mb-6 p-4 bg-cream/5 border border-cream/20 rounded-lg animate-fade-in">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-4 h-4 text-cream" />
+                        <span className="text-xs font-medium text-cream">AI Summary</span>
+                      </div>
+                      <p className="text-sm text-foreground/90 leading-relaxed">{summary}</p>
+                    </div>
+                  )}
 
                   {/* Add Comment */}
                   <div className="mb-6">
