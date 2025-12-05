@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Play, MessageCircle, Heart, LogOut, ChevronLeft, Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const GEMINI_API_KEY = "AIzaSyBG1oJzeCY7GSR6nEGKhP862FtpQaF_UR8";
+const GEMINI_API_KEY = "AIzaSyBTImxCWh1AenEhgtL5YGTlRP8DIVrh_yg";
 
 interface Video {
   id: string;
