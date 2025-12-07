@@ -20,6 +20,13 @@ const Index = () => {
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => navigate("/pricing")}
+            >
+              Pricing
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => navigate("/auth")}
             >
               Login
