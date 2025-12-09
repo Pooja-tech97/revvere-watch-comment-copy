@@ -19,9 +19,9 @@ serve(async (req) => {
     console.log("Creating checkout session for:", { planId, planName, price, paymentId });
 
     // Get the Stripe secret key
-    const stripeKey = Deno.env.get("VITE_STRIPE_PUBLIC_KEY");
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
-      throw new Error("Stripe key not configured");
+      throw new Error("Stripe secret key not configured");
     }
 
     // Initialize Stripe
