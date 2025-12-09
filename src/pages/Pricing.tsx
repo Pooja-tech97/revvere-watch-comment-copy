@@ -88,23 +88,29 @@ const Pricing = () => {
         return;
       }
 
-      // Use Supabase user ID if available, otherwise set to null for localStorage users
-      const userId = user?.id || null;
+      let paymentId: string | null = null;
 
-      // Create a pending payment record
-      const { data: payment, error: paymentError } = await supabase
-        .from("payments")
-        .insert({
-          user_id: userId,
-          amount: plan.price * 100,
-          currency: "usd",
-          plan_name: plan.name,
-          status: "pending",
-        })
-        .select()
-        .single();
+      // Only create payment record for Supabase authenticated users
+      // localStorage users (demo) will skip this step due to RLS restrictions
+      if (user) {
+        const { data: payment, error: paymentError } = await supabase
+          .from("payments")
+          .insert({
+            user_id: user.id,
+            amount: plan.price * 100,
+            currency: "usd",
+            plan_name: plan.name,
+            status: "pending",
+          })
+          .select()
+          .single();
 
-      if (paymentError) throw paymentError;
+        if (paymentError) throw paymentError;
+        paymentId = payment.id;
+      } else {
+        // For demo users, generate a temporary ID
+        paymentId = crypto.randomUUID();
+      }
 
       // Call edge function to create Stripe checkout session
       const { data, error } = await supabase.functions.invoke("create-checkout", {
@@ -112,7 +118,7 @@ const Pricing = () => {
           planId: plan.id,
           planName: plan.name,
           price: plan.price,
-          paymentId: payment.id,
+          paymentId: paymentId,
         },
       });
 
