@@ -29,30 +29,30 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    // Get user from authorization header
+    // Get user from authorization header (optional for demo users)
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header");
+    let userEmail = "demo@example.com";
+    let userId = "demo-user";
+
+    if (authHeader && authHeader !== "Bearer null") {
+      const supabaseClient = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      );
+
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+
+      if (!userError && userData.user) {
+        userEmail = userData.user.email || "demo@example.com";
+        userId = userData.user.id;
+      }
     }
-
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-
-    if (userError || !userData.user) {
-      throw new Error("User not authenticated");
-    }
-
-    const user = userData.user;
 
     // Check if customer already exists
     let customerId: string | undefined;
     const existingCustomers = await stripe.customers.list({
-      email: user.email,
+      email: userEmail,
       limit: 1,
     });
 
@@ -60,9 +60,9 @@ serve(async (req) => {
       customerId = existingCustomers.data[0].id;
     } else {
       const newCustomer = await stripe.customers.create({
-        email: user.email,
+        email: userEmail,
         metadata: {
-          supabase_user_id: user.id,
+          supabase_user_id: userId,
         },
       });
       customerId = newCustomer.id;
@@ -97,7 +97,7 @@ serve(async (req) => {
       metadata: {
         payment_id: paymentId,
         plan_id: planId,
-        user_id: user.id,
+        user_id: userId,
       },
     });
 
