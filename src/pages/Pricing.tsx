@@ -72,22 +72,13 @@ const Pricing = () => {
     setLoadingPlan(plan.id);
 
     try {
-      // Check for localStorage user first (simulated auth)
+      // Get Supabase authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Also check localStorage for simulated auth (for demo purposes)
       const storedUser = localStorage.getItem("user");
-      let userId: string | null = null;
 
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        userId = parsedUser.email; // Use email as a pseudo-id
-      } else {
-        // Fallback to Supabase auth
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          userId = user.id;
-        }
-      }
-
-      if (!userId) {
+      if (!user && !storedUser) {
         toast({
           title: "Please sign in",
           description: "You need to be signed in to make a purchase.",
@@ -96,6 +87,9 @@ const Pricing = () => {
         navigate("/auth");
         return;
       }
+
+      // Use Supabase user ID if available, otherwise set to null for localStorage users
+      const userId = user?.id || null;
 
       // Create a pending payment record
       const { data: payment, error: paymentError } = await supabase
