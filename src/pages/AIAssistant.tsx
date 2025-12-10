@@ -97,7 +97,7 @@ const AIAssistant = () => {
       await navigator.mediaDevices.getUserMedia({ audio: true });
       
       const signedUrl = await getSignedUrl();
-      await conversation.startSession({ url: signedUrl });
+      await conversation.startSession({ signedUrl });
     } catch (error) {
       console.error("Error starting conversation:", error);
       setIsConnecting(false);
