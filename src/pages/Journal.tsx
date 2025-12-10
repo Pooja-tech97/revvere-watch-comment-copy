@@ -39,6 +39,7 @@ import {
   LogOut,
   Mic,
   MicOff,
+  Bot,
 } from "lucide-react";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { useToast } from "@/hooks/use-toast";
@@ -244,6 +245,24 @@ export default function Journal() {
             >
               <BookOpen className="w-4 h-4 mr-1.5" />
               <span className="hidden sm:inline">Journal</span>
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/ai-assistant")}
+              className="text-cream/80 hover:text-cream hover:bg-cream/10"
+            >
+              <Bot className="w-4 h-4 mr-1.5" />
+              <span className="hidden sm:inline">AI Assistant</span>
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/pricing")}
+              className="text-cream/80 hover:text-cream hover:bg-cream/10"
+            >
+              <Sparkles className="w-4 h-4 mr-1.5" />
+              <span className="hidden sm:inline">Pricing</span>
             </Button>
           </nav>
           <div className="flex items-center gap-4">

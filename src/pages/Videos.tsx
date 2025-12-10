@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Play, MessageCircle, Heart, LogOut, ChevronLeft, Sparkles, Loader2, BookOpen, CreditCard } from "lucide-react";
+import { Play, MessageCircle, Heart, LogOut, ChevronLeft, Sparkles, Loader2, BookOpen, Bot } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const GEMINI_API_KEY = "AIzaSyBTImxCWh1AenEhgtL5YGTlRP8DIVrh_yg";
@@ -214,6 +214,15 @@ const Videos = () => {
             >
               <BookOpen className="w-4 h-4 mr-1.5" />
               <span className="hidden sm:inline">Journal</span>
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/ai-assistant")}
+              className="text-cream/80 hover:text-cream hover:bg-cream/10"
+            >
+              <Bot className="w-4 h-4 mr-1.5" />
+              <span className="hidden sm:inline">AI Assistant</span>
             </Button>
             <Button 
               variant="ghost" 
