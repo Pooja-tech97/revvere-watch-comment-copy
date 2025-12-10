@@ -148,6 +148,7 @@ const Pricing = () => {
             <NavLink to="/">Home</NavLink>
             <NavLink to="/journal">Journal</NavLink>
             <NavLink to="/videos">Videos</NavLink>
+            <NavLink to="/ai-assistant">AI Assistant</NavLink>
             <NavLink to="/pricing">Pricing</NavLink>
           </div>
         </div>
